@@ -1,0 +1,50 @@
+enum Role {
+  ROOT,
+  SUPER_USER,
+  USER,
+}
+
+enum PermissionType {
+  CRUD,
+  CUSTOM,
+}
+
+enum CrudOperation {
+  CREATE,
+  READ,
+  UPDATE,
+  DELETE,
+}
+
+type Permission {
+  id: ID! @unique
+  name: String! @unique
+  type: PermissionType!
+  resourceName: String
+  allowedOperation: CrudOperation
+  # for custom operations
+  customOperationName: String
+  customOperationParams: Json
+
+  users: [User!]! @relation(name: "UserOnPermissions")
+  groups: [PermissionGroup!]! @relation(name: "PermissionGroupOnPermissions")
+}
+
+type PermissionGroup {
+  id: ID! @unique
+  name: String! @unique
+  permissions: [Permission!]! @relation(name: "PermissionGroupOnPermissions")
+  users: [User!]! @relation(name: "UserOnGroups")
+}
+
+type User {
+  id: ID! @unique
+  email: String! @unique
+  password: String!
+  name: String!
+  role: Role!
+  groups: [PermissionGroup!]! @relation(name: "UserOnGroups")
+  permissions: [Permission!]! @relation(name: "UserOnPermissions")
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}

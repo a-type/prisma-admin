@@ -1,0 +1,74 @@
+# import User, Permission, PermissionGroup, Role from "./generated/prisma.graphql"
+# import UserWhereInput, UserOrderByInput from "./generated/prisma.graphql"
+# import PermissionWhereInput, PermissionOrderByInput from "./generated/prisma.graphql"
+# import PermissionGroupWhereInput, PermissionGroupOrderByInput from "./generated/prisma.graphql"
+
+type Query {
+  users(
+    where: UserWhereInput,
+    orderBy: UserOrderByInput,
+    skip: Int,
+    after: String,
+    before: String,
+    first: Int,
+    last: Int,
+  ): [User!]!
+  user(
+    id: ID! 
+  ): User!
+  me: User!
+  permissions(
+    where: PermissionWhereInput,
+    orderBy: PermissionOrderByInput,
+    skip: Int,
+    after: String,
+    before: String,
+    first: Int,
+    last: Int,
+  ): [Permission!]!
+  permission(
+    id: ID! 
+  ): Permission!
+  permissionGroups(
+    where: PermissionGroupWhereInput,
+    orderBy: PermissionGroupOrderByInput,
+    skip: Int,
+    after: String,
+    before: String,
+    first: Int,
+    last: Int, 
+  ): [PermissionGroup!]!
+  permissionGroup(
+    id: ID!
+  ): PermissionGroup!
+}
+
+type Mutation {
+  updateUser: User!
+  deleteUser: User!
+
+  createPermission: Permission!
+  updatePermission: Permission!
+  deletePermission: Permission!
+
+  createPermissionGroup: PermissionGroup!
+  updatePermissionGroup: PermissionGroup!
+  deletePermissionGroup: PermissionGroup!
+
+  login(
+    email: String!
+    password: String!
+  ) : AuthPayload!
+
+  signup(
+    email: String!
+    password: String!
+    name: String!
+    role: Role!
+  ) : AuthPayload!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}

@@ -1,0 +1,24 @@
+const { forwardTo } = require('graphql-binding/dist/utils');
+const { authenticated, hasRole } = require('./wrappers');
+
+const permission = authenticated(forwardTo('db'));
+
+const permissions = authenticated(forwardTo('db'));
+
+const createPermission = hasRole('SUPER_USER', forwardTo('db'));
+
+const updatePermission = hasRole('SUPER_USER', forwardTo('db'));
+
+const deletePermission = hasRole('SUPER_USER', forwardTo('db'));
+
+module.exports = {
+  Query: {
+    permission,
+    permissions,
+  },
+  Mutation: {
+    createPermission,
+    updatePermission,
+    deletePermission,
+  },
+};
