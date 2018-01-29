@@ -16,15 +16,22 @@ enum CrudOperation {
   DELETE,
 }
 
+type CustomOperation {
+  id: ID! @unique
+  name: String! @unique
+  params: Json
+
+  permission: Permission @relation(name: "CustomOperationOnPermission")
+}
+
 type Permission {
   id: ID! @unique
   name: String! @unique
   type: PermissionType!
   resourceName: String
   allowedOperation: CrudOperation
-  # for custom operations
-  customOperationName: String
-  customOperationParams: Json
+
+  customOperation: CustomOperation @relation(name: "CustomOperationOnPermission")
 
   users: [User!]! @relation(name: "UserOnPermissions")
   groups: [PermissionGroup!]! @relation(name: "PermissionGroupOnPermissions")

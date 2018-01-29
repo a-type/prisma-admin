@@ -5,14 +5,20 @@
 # Model Types
 #
 
+type CustomOperation implements Node {
+  id: ID!
+  name: String!
+  params: Json
+  permission(where: PermissionWhereInput): Permission
+}
+
 type Permission implements Node {
   id: ID!
   name: String!
   type: PermissionType!
   resourceName: String
   allowedOperation: CrudOperation
-  customOperationName: String
-  customOperationParams: Json
+  customOperation(where: CustomOperationWhereInput): CustomOperation
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User!]
   groups(where: PermissionGroupWhereInput, orderBy: PermissionGroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [PermissionGroup!]
 }
@@ -41,6 +47,10 @@ type User implements Node {
 # Other Types
 #
 
+type AggregateCustomOperation {
+  count: Int!
+}
+
 type AggregatePermission {
   count: Int!
 }
@@ -64,6 +74,139 @@ enum CrudOperation {
   DELETE
 }
 
+type CustomOperationConnection {
+  pageInfo: PageInfo!
+  edges: [CustomOperationEdge]!
+  aggregate: AggregateCustomOperation!
+}
+
+input CustomOperationCreateInput {
+  name: String!
+  params: Json
+  permission: PermissionCreateOneWithoutCustomOperationInput
+}
+
+input CustomOperationCreateOneWithoutPermissionInput {
+  create: CustomOperationCreateWithoutPermissionInput
+  connect: CustomOperationWhereUniqueInput
+}
+
+input CustomOperationCreateWithoutPermissionInput {
+  name: String!
+  params: Json
+}
+
+type CustomOperationEdge {
+  node: CustomOperation!
+  cursor: String!
+}
+
+enum CustomOperationOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  params_ASC
+  params_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type CustomOperationPreviousValues {
+  id: ID!
+  name: String!
+  params: Json
+}
+
+type CustomOperationSubscriptionPayload {
+  mutation: MutationType!
+  node: CustomOperation
+  updatedFields: [String!]
+  previousValues: CustomOperationPreviousValues
+}
+
+input CustomOperationSubscriptionWhereInput {
+  AND: [CustomOperationSubscriptionWhereInput!]
+  OR: [CustomOperationSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: CustomOperationWhereInput
+}
+
+input CustomOperationUpdateInput {
+  name: String
+  params: Json
+  permission: PermissionUpdateOneWithoutCustomOperationInput
+}
+
+input CustomOperationUpdateOneWithoutPermissionInput {
+  create: CustomOperationCreateWithoutPermissionInput
+  connect: CustomOperationWhereUniqueInput
+  disconnect: CustomOperationWhereUniqueInput
+  delete: CustomOperationWhereUniqueInput
+  update: CustomOperationUpdateWithoutPermissionInput
+  upsert: CustomOperationUpsertWithoutPermissionInput
+}
+
+input CustomOperationUpdateWithoutPermissionDataInput {
+  name: String
+  params: Json
+}
+
+input CustomOperationUpdateWithoutPermissionInput {
+  where: CustomOperationWhereUniqueInput!
+  data: CustomOperationUpdateWithoutPermissionDataInput!
+}
+
+input CustomOperationUpsertWithoutPermissionInput {
+  where: CustomOperationWhereUniqueInput!
+  update: CustomOperationUpdateWithoutPermissionDataInput!
+  create: CustomOperationCreateWithoutPermissionInput!
+}
+
+input CustomOperationWhereInput {
+  AND: [CustomOperationWhereInput!]
+  OR: [CustomOperationWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_lt: String
+  name_lte: String
+  name_gt: String
+  name_gte: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  permission: PermissionWhereInput
+}
+
+input CustomOperationWhereUniqueInput {
+  id: ID
+  name: String
+}
+
 scalar DateTime
 
 scalar Json
@@ -71,21 +214,27 @@ scalar Json
 scalar Long
 
 type Mutation {
+  createCustomOperation(data: CustomOperationCreateInput!): CustomOperation!
   createPermission(data: PermissionCreateInput!): Permission!
   createPermissionGroup(data: PermissionGroupCreateInput!): PermissionGroup!
   createUser(data: UserCreateInput!): User!
+  updateCustomOperation(data: CustomOperationUpdateInput!, where: CustomOperationWhereUniqueInput!): CustomOperation
   updatePermission(data: PermissionUpdateInput!, where: PermissionWhereUniqueInput!): Permission
   updatePermissionGroup(data: PermissionGroupUpdateInput!, where: PermissionGroupWhereUniqueInput!): PermissionGroup
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  deleteCustomOperation(where: CustomOperationWhereUniqueInput!): CustomOperation
   deletePermission(where: PermissionWhereUniqueInput!): Permission
   deletePermissionGroup(where: PermissionGroupWhereUniqueInput!): PermissionGroup
   deleteUser(where: UserWhereUniqueInput!): User
+  upsertCustomOperation(where: CustomOperationWhereUniqueInput!, create: CustomOperationCreateInput!, update: CustomOperationUpdateInput!): CustomOperation!
   upsertPermission(where: PermissionWhereUniqueInput!, create: PermissionCreateInput!, update: PermissionUpdateInput!): Permission!
   upsertPermissionGroup(where: PermissionGroupWhereUniqueInput!, create: PermissionGroupCreateInput!, update: PermissionGroupUpdateInput!): PermissionGroup!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  updateManyCustomOperations(data: CustomOperationUpdateInput!, where: CustomOperationWhereInput!): BatchPayload!
   updateManyPermissions(data: PermissionUpdateInput!, where: PermissionWhereInput!): BatchPayload!
   updateManyPermissionGroups(data: PermissionGroupUpdateInput!, where: PermissionGroupWhereInput!): BatchPayload!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
+  deleteManyCustomOperations(where: CustomOperationWhereInput!): BatchPayload!
   deleteManyPermissions(where: PermissionWhereInput!): BatchPayload!
   deleteManyPermissionGroups(where: PermissionGroupWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
@@ -119,8 +268,7 @@ input PermissionCreateInput {
   type: PermissionType!
   resourceName: String
   allowedOperation: CrudOperation
-  customOperationName: String
-  customOperationParams: Json
+  customOperation: CustomOperationCreateOneWithoutPermissionInput
   users: UserCreateManyWithoutPermissionsInput
   groups: PermissionGroupCreateManyWithoutPermissionsInput
 }
@@ -135,13 +283,26 @@ input PermissionCreateManyWithoutUsersInput {
   connect: [PermissionWhereUniqueInput!]
 }
 
+input PermissionCreateOneWithoutCustomOperationInput {
+  create: PermissionCreateWithoutCustomOperationInput
+  connect: PermissionWhereUniqueInput
+}
+
+input PermissionCreateWithoutCustomOperationInput {
+  name: String!
+  type: PermissionType!
+  resourceName: String
+  allowedOperation: CrudOperation
+  users: UserCreateManyWithoutPermissionsInput
+  groups: PermissionGroupCreateManyWithoutPermissionsInput
+}
+
 input PermissionCreateWithoutGroupsInput {
   name: String!
   type: PermissionType!
   resourceName: String
   allowedOperation: CrudOperation
-  customOperationName: String
-  customOperationParams: Json
+  customOperation: CustomOperationCreateOneWithoutPermissionInput
   users: UserCreateManyWithoutPermissionsInput
 }
 
@@ -150,8 +311,7 @@ input PermissionCreateWithoutUsersInput {
   type: PermissionType!
   resourceName: String
   allowedOperation: CrudOperation
-  customOperationName: String
-  customOperationParams: Json
+  customOperation: CustomOperationCreateOneWithoutPermissionInput
   groups: PermissionGroupCreateManyWithoutPermissionsInput
 }
 
@@ -341,10 +501,6 @@ enum PermissionOrderByInput {
   resourceName_DESC
   allowedOperation_ASC
   allowedOperation_DESC
-  customOperationName_ASC
-  customOperationName_DESC
-  customOperationParams_ASC
-  customOperationParams_DESC
   updatedAt_ASC
   updatedAt_DESC
   createdAt_ASC
@@ -357,8 +513,6 @@ type PermissionPreviousValues {
   type: PermissionType!
   resourceName: String
   allowedOperation: CrudOperation
-  customOperationName: String
-  customOperationParams: Json
 }
 
 type PermissionSubscriptionPayload {
@@ -388,8 +542,7 @@ input PermissionUpdateInput {
   type: PermissionType
   resourceName: String
   allowedOperation: CrudOperation
-  customOperationName: String
-  customOperationParams: Json
+  customOperation: CustomOperationUpdateOneWithoutPermissionInput
   users: UserUpdateManyWithoutPermissionsInput
   groups: PermissionGroupUpdateManyWithoutPermissionsInput
 }
@@ -412,13 +565,35 @@ input PermissionUpdateManyWithoutUsersInput {
   upsert: [PermissionUpsertWithoutUsersInput!]
 }
 
+input PermissionUpdateOneWithoutCustomOperationInput {
+  create: PermissionCreateWithoutCustomOperationInput
+  connect: PermissionWhereUniqueInput
+  disconnect: PermissionWhereUniqueInput
+  delete: PermissionWhereUniqueInput
+  update: PermissionUpdateWithoutCustomOperationInput
+  upsert: PermissionUpsertWithoutCustomOperationInput
+}
+
+input PermissionUpdateWithoutCustomOperationDataInput {
+  name: String
+  type: PermissionType
+  resourceName: String
+  allowedOperation: CrudOperation
+  users: UserUpdateManyWithoutPermissionsInput
+  groups: PermissionGroupUpdateManyWithoutPermissionsInput
+}
+
+input PermissionUpdateWithoutCustomOperationInput {
+  where: PermissionWhereUniqueInput!
+  data: PermissionUpdateWithoutCustomOperationDataInput!
+}
+
 input PermissionUpdateWithoutGroupsDataInput {
   name: String
   type: PermissionType
   resourceName: String
   allowedOperation: CrudOperation
-  customOperationName: String
-  customOperationParams: Json
+  customOperation: CustomOperationUpdateOneWithoutPermissionInput
   users: UserUpdateManyWithoutPermissionsInput
 }
 
@@ -432,14 +607,19 @@ input PermissionUpdateWithoutUsersDataInput {
   type: PermissionType
   resourceName: String
   allowedOperation: CrudOperation
-  customOperationName: String
-  customOperationParams: Json
+  customOperation: CustomOperationUpdateOneWithoutPermissionInput
   groups: PermissionGroupUpdateManyWithoutPermissionsInput
 }
 
 input PermissionUpdateWithoutUsersInput {
   where: PermissionWhereUniqueInput!
   data: PermissionUpdateWithoutUsersDataInput!
+}
+
+input PermissionUpsertWithoutCustomOperationInput {
+  where: PermissionWhereUniqueInput!
+  update: PermissionUpdateWithoutCustomOperationDataInput!
+  create: PermissionCreateWithoutCustomOperationInput!
 }
 
 input PermissionUpsertWithoutGroupsInput {
@@ -507,20 +687,7 @@ input PermissionWhereInput {
   allowedOperation_not: CrudOperation
   allowedOperation_in: [CrudOperation!]
   allowedOperation_not_in: [CrudOperation!]
-  customOperationName: String
-  customOperationName_not: String
-  customOperationName_in: [String!]
-  customOperationName_not_in: [String!]
-  customOperationName_lt: String
-  customOperationName_lte: String
-  customOperationName_gt: String
-  customOperationName_gte: String
-  customOperationName_contains: String
-  customOperationName_not_contains: String
-  customOperationName_starts_with: String
-  customOperationName_not_starts_with: String
-  customOperationName_ends_with: String
-  customOperationName_not_ends_with: String
+  customOperation: CustomOperationWhereInput
   users_every: UserWhereInput
   users_some: UserWhereInput
   users_none: UserWhereInput
@@ -535,12 +702,15 @@ input PermissionWhereUniqueInput {
 }
 
 type Query {
+  customOperations(where: CustomOperationWhereInput, orderBy: CustomOperationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [CustomOperation]!
   permissions(where: PermissionWhereInput, orderBy: PermissionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Permission]!
   permissionGroups(where: PermissionGroupWhereInput, orderBy: PermissionGroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [PermissionGroup]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  customOperation(where: CustomOperationWhereUniqueInput!): CustomOperation
   permission(where: PermissionWhereUniqueInput!): Permission
   permissionGroup(where: PermissionGroupWhereUniqueInput!): PermissionGroup
   user(where: UserWhereUniqueInput!): User
+  customOperationsConnection(where: CustomOperationWhereInput, orderBy: CustomOperationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CustomOperationConnection!
   permissionsConnection(where: PermissionWhereInput, orderBy: PermissionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PermissionConnection!
   permissionGroupsConnection(where: PermissionGroupWhereInput, orderBy: PermissionGroupOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PermissionGroupConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
@@ -554,6 +724,7 @@ enum Role {
 }
 
 type Subscription {
+  customOperation(where: CustomOperationSubscriptionWhereInput): CustomOperationSubscriptionPayload
   permission(where: PermissionSubscriptionWhereInput): PermissionSubscriptionPayload
   permissionGroup(where: PermissionGroupSubscriptionWhereInput): PermissionGroupSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload

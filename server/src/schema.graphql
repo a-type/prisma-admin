@@ -1,4 +1,4 @@
-# import User, Permission, PermissionGroup, Role from "./generated/prisma.graphql"
+# import User, Permission, PermissionGroup, Role, PermissionType, CrudOperation from "./generated/prisma.graphql"
 # import UserWhereInput, UserOrderByInput from "./generated/prisma.graphql"
 # import PermissionWhereInput, PermissionOrderByInput from "./generated/prisma.graphql"
 # import PermissionGroupWhereInput, PermissionGroupOrderByInput from "./generated/prisma.graphql"
@@ -44,16 +44,20 @@ type Query {
 }
 
 type Mutation {
-  updateUser: User!
-  deleteUser: User!
+  updateUser(data: UpdateUserInput!): User!
+  deleteUser(id: ID!): User!
+  addUserPermissions(id: ID!, permissionIds: [ID!]!): User!
+  removeUserPermissions(id: ID!, permissionIds: [ID!]!): User!
+  addUserToGroups(id: ID!, permissionGroupIds: [ID!]!): User!
+  removeUserFromGroups(id: ID!, permissionGroupIds: [ID!]!): User!
 
-  createPermission: Permission!
-  updatePermission: Permission!
-  deletePermission: Permission!
+  createPermission(data: CreatePermissionInput!): Permission!
+  updatePermission(data: UpdatePermissionInput!): Permission!
+  deletePermission(id: ID!): Permission!
 
-  createPermissionGroup: PermissionGroup!
-  updatePermissionGroup: PermissionGroup!
-  deletePermissionGroup: PermissionGroup!
+  createPermissionGroup(data: CreatePermissionGroupInput!): PermissionGroup!
+  updatePermissionGroup(data: UpdatePermissionGroupInput!): PermissionGroup!
+  deletePermissionGroup(id: ID!): PermissionGroup!
 
   login(
     email: String!
@@ -71,4 +75,33 @@ type Mutation {
 type AuthPayload {
   token: String!
   user: User!
+}
+
+# Inputs
+
+input UpdateUserInput {
+  id: ID!
+  name: String
+  role: Role
+}
+
+input CreatePermissionInput {
+  name: String!
+  type: PermissionType!
+  resourceName: String
+  allowedOperation: CrudOperation
+}
+
+input UpdatePermissionInput {
+  name: String
+}
+
+input CreatePermissionGroupInput {
+  name: String!
+  permissionIds: [ID!]!
+  userIds: [ID!]!
+}
+
+input UpdatePermissionGroupInput {
+  name: String!
 }

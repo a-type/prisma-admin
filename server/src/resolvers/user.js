@@ -1,4 +1,4 @@
-const { authenticated } = require('./wrappers');
+const { authenticated, authorized } = require('./wrappers');
 const { forwardTo } = require('prisma-binding');
 
 // query the current user
@@ -13,14 +13,57 @@ const user = authenticated((parent, { id }, ctx, info) => {
 
 const users = authenticated(forwardTo('db'));
 
-const updateUser = authenticated((parent, input, ctx, info) => {
+const isOwnUser = (parent, input, ctx, info) => 
+  ctx.token.userId === (input.id || input.data.id);
+const hasHigherRole = async (parent, input, ctx, info) => {
   const userId = ctx.token.userId;
-  return ctx.db.mutation.updateUser({ ...input, where: { id: userId } }, info);
-});
+  const targetId = input.id || input.data.id;
+  const self = await ctx.db.query.user({ where: { id: userId } });
+  const user = await ctx.db.query.user({ where: { id: targetId } });
+  if (user.role === 'USER' && self.role !== 'USER') {
+    return true;
+  } else if (user.role === 'SUPER_USER' && self.role === 'ROOT') {
+    return true;
+  }
+  return false;
+};
 
-const deleteUser = authenticated((parent, { id }, ctx, info) => {
-  return ctx.db.query.deleteUser({ where: { id } }, info);
-});
+const updateUser = authenticated(
+  authorized.any([
+    authorized.hasRole('SUPER_USER'),
+    isOwnUser,
+  ])((parent, input, ctx, info) => {
+    const userId = {};
+    return ctx.db.mutation.updateUser({ ...input, where: { id: userId } }, info);
+  }),
+);
+
+const deleteUser = authenticated(
+  authorized.all([
+    hasHigherRole,
+  ])((parent, { id }, ctx, info) => {
+    return ctx.db.mutation.deleteUser({ where: { id } }, info);
+  }),
+);
+
+const addUserPermissions = authenticated(
+  authorized.all([
+    hasHigherRole,
+  ])((parent, { id, permissionIds }, ctx, info) => {
+    return ctx.db.mutation.updateUser({
+      data: {
+        permissions: {
+          connect: permissionIds.map(permissionId => ({
+            id: permissionId,
+          })),
+        },
+      },
+      where: {
+        id
+      }
+    }, info);
+  }),
+);
 
 module.exports = {
   Query: {
@@ -31,5 +74,6 @@ module.exports = {
   Mutation: {
     updateUser,
     deleteUser,
+    addUserPermissions,
   },
 };

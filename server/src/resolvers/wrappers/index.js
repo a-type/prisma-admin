@@ -1,9 +1,7 @@
 const authenticated = require('./authenticated');
-const hasPermission = require('./hasPermission');
-const hasRole = require('./hasRole');
+const authorized = require('./authorized');
 
 module.exports = {
-  hasPermission,
   authenticated,
-  hasRole,
+  authorized,
 };
